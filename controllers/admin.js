@@ -9,15 +9,22 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
+  
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product({title:title,price:price,imageUrl:imageUrl,description:description})
+  const product = new Product({
+    title:title,
+    price:price,
+    imageUrl:imageUrl,
+    description:description,
+    userId:req.user,
+  })
   product
   .save()  //in mongodb we defined this method but in mongoose we straighly using it
     .then(result => {
-      // console.log(result);
+      
       console.log('Created Product');
       res.redirect('/products');
     })
@@ -71,7 +78,10 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   Product.find()
+    .select(' title price -_id')
+    .populate('userId','name')
     .then(products => {
+      console.log(products)
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
